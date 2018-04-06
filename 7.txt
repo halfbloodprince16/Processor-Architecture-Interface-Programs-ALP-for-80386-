@@ -1,0 +1,24 @@
+jmp start
+start:
+mov a,#40H ; a=40H
+mov b,#20H ; b =20H
+mul ab
+mov r2,a
+mov r3,b
+mov a,#30H
+mov b,#20H
+mul ab
+add a,r3
+mov r1,a
+mov a,#00
+addc a,#00
+add a,r1
+mov 40H,r2
+mov 41H,a
+mov 42H,b
+end
+;Inbput 8040 X 20
+; Output 10 08 00
+; 42H = 10
+; 41H =08
+; 40H =00

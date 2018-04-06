@@ -1,0 +1,65 @@
+DISP MACRO MSG
+mov ah,09h
+lea dx,msg
+int 21h
+ENDM
+EXTRN INPUTSTR1:BYTE,INPUTSTR2:BYTE
+PUBLIC COMPARE_PROC,CONCAT_PROC
+.model small
+.data
+MSGCON db 10,13,"CONACTED STRING IS $"
+MSGCOM db 10,13,"STRINGS ARE EQUAL $"
+MSGCOMN db 10,13,"STRINGS ARE NOT EQUAL $"
+inputstr3 db 50 dup ('$')
+.code
+mov ax,@data
+mov ds,ax
+mov es,ax
+PROC COMPARE_PROC FAR
+xor cx,cx
+lea si,inputstr1+1
+lea di,inputstr2+1
+mov cl,byte ptr [si]
+CLD
+back2:
+CMPSB
+JNE NOTEQUAL
+loop back2
+disp msgcom
+jmp exit1
+notequal: disp msgcomn
+exit1: RET
+ENDP
+PROC CONCAT_PROC FAR
+xor cx,cx
+lea si,inputstr1+1
+lea di,inputstr3
+mov cl,byte ptr [si]
+inc si
+CLD
+REP MOVSB
+xor cx,cx
+lea si,inputstr2+1
+mov cl,byte ptr [si]
+inc si
+CLD
+REP MOVSB
+disp msgcon
+lea si,inputstr1+1
+mov cl,byte ptr [si]
+lea si,inputstr2+1
+mov ch,byte ptr [si]
+add cl,ch
+xor ch,ch
+lea di,inputstr3
+back4:mov ah,02
+mov dl,[di]
+int 21h
+inc di
+loop back4
+RET
+ENDP
+EXIT:
+mov ah,4ch
+int 21h
+end

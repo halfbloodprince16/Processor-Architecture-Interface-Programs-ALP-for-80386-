@@ -1,0 +1,126 @@
+disp macro msg
+mov ah,09H
+lea dx, msg
+int 21H
+endm
+.model small
+.stack 100H
+.data
+menu db 10,13,"Enter the choice",10,13,"1.BCD to Hex",10,13,"2.Hex to
+BCD",10,13,"3.Exit $"
+msg3 db 10,13,"No, Not Valid $"
+msg1 db 10,13,"Enter a Valid BCD Number $"
+msg2 db 10,13,"The Hex Converted Number is : $"
+msg4 db 10,13,"Enter a Valid Hex Number $"
+msg5 db 10,13,"The BCD Converted Number is : $"
+msg6 db 10,13,"Thanks $"
+bcd1 db 6,?,6 dup(0)
+hex1 db 5,?,5 dup(0)
+sum dw 0
+sum1 dw 0
+.code
+mov ax,@data
+mov ds,ax
+men:disp menu
+mov ah,01H
+int 21H
+cmp al,31H
+je bcd
+cmp al,32H
+je hex
+jmp exit
+bcd: call b2h
+jmp men
+hex: call h2b
+jmp men
+proc b2h near
+s:mov sum,0
+disp msg1
+mov ah,0aH
+mov dx,offset bcd1
+int 21H
+xor cx,cx ; xor done to make zero
+lea si,bcd1[1] ; load effective address
+mov cl,[si]
+add si,cx
+mov bx,01H
+xor ax,ax
+back:
+mov al,[si]
+cmp al,39H
+ja back2 ; jump if above
+sub al,30H ; Subtract
+mul bx
+add sum,ax
+dec si
+mov ax,10
+mul bx
+mov bx,ax
+loop back
+disp msg2
+mov cx,04H
+mov bx,sum
+back1: rol bx,04H
+mov dl,bl
+and dl,0FH
+cmp dl,09H
+jbe add30
+add dl,07H
+add30: add dl,30H
+mov ah,02H
+int 21H
+loop back1
+jmp endx
+back2:disp msg3
+jmp s
+endx:
+ret
+endp
+proc h2b near
+mov sum1,0
+disp msg4
+mov ah,0ah
+mov dx,offset hex1
+int 21H
+xor cx,cx
+lea si, hex1[1]
+mov cl,[si]
+add si,cx
+mov bx,1H
+xor ax,ax
+bck1:
+mov al,[si]
+sub al,30H
+cmp al,09H
+jbe con
+sub al,07H
+con:mul bx
+add sum1,ax
+dec si
+mov ax,10H
+mul bx
+mov bx,ax
+loop bck1
+mov ax,sum1
+bck2:
+xor dx,dx
+mov bx,0ah
+div bx
+push dx
+inc cx
+cmp ax,00H
+jne bck2
+disp msg5
+back3:
+pop dx
+add dl,30H
+mov ah,02H
+int 21H
+loop back3
+ret
+endp
+exit:
+disp msg6
+mov ah,4ch
+int 21H
+end

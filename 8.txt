@@ -1,0 +1,23 @@
+org 0
+ljmp start
+
+org 0xb
+clr TR0
+clr TF0
+cpl p1.0
+mov tmod,##0x1
+mov th0,#0xff
+mov tl0,#0sx0b
+setb tr0
+reti
+
+start:	mov ie,#82H
+	clr tr0
+	clr tf0
+	mov tmod,#0x1
+	mov th0,#0xff
+	mov tl0,#0x0b
+	setb tr0
+here:
+	sjmp here
+	end

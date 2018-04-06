@@ -1,0 +1,45 @@
+DISP MACRO MSG
+mov ah,09h
+lea dx,msg
+int 21h
+ENDM
+public inputstr1,inputstr2
+extrn concat_proc:far,compare_proc:far
+.model small
+.data
+SINPUT1 db 10,13,"ENTER A STRING1:-$"
+SINPUT2 DB 10,13,"ENTER A STRING2:-$"
+menu1 db 10,13,"1:CONCATENATION ",10,13,"2:COMPARE ",10,13,"3:EXIT $"
+menu2 db 10,13,"Enter your choice $"
+inputstr1 db 25,?,25 dup('$')
+inputstr2 db 25,?,25 dup('$')
+inputstr3 db 50 dup ('$')
+.code
+mov ax,@data
+mov ds,ax
+mov es,ax
+disp sinput1
+mov ah,0Ah
+mov dx,offset inputstr1
+int 21h
+disp sinput2
+mov ah,0Ah
+mov dx,offset inputstr2
+int 21h
+disp menu1
+disp menu2
+mov ah,01h
+int 21h
+cmp al,31h
+JE concat1
+cmp al,32h
+JE compare1
+JMP EXIT
+concat1:CALL concat_proc
+JMP EXIT
+compare1:CALL compare_proc
+JMP EXIT
+EXIT:
+mov ah,4ch
+int 21h
+end
